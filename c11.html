@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marnie.IO — Piper Tile · Commission 11 · v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ════════════════════════════════════════
+   MARNIE.IO PALETTE — CONFIRMED C6
+   ════════════════════════════════════════ */
+:root {
+  --cobalt:       #2B52A8;
+  --cobalt-deep:  #1E3D80;
+  --cobalt-mid:   #4E72C0;
+  --cobalt-pale:  #B8C9E8;
+  --cobalt-ghost: rgba(43,82,168,0.07);
+  --cobalt-rule:  rgba(43,82,168,0.15);
+
+  --kitchen:      #E9BC28;
+  --kitchen-pale: #F2D060;
+  --kitchen-deep: #C49B18;
+  --kitchen-ghost:rgba(233,188,40,0.12);
+  --kitchen-rule: rgba(233,188,40,0.3);
+
+  --ground:       #F4F6FA;
+  --surface:      #FFFFFF;
+  --border:       rgba(43,82,168,0.1);
+  --border-l:     rgba(43,82,168,0.06);
+
+  --ink:          #1A1C22;
+  --ink-m:        #4A4F5C;
+  --ink-d:        rgba(26,28,34,0.38);
+
+  --syne: 'Syne', sans-serif;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--ground);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Phone frame wrapper (design presentation) ── */
+.phone-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 24px 60px;
+  background: var(--cobalt-deep);
+  min-height: 100vh;
+}
+
+.phone-frame {
+  width: 390px;
+  background: var(--ground);
+  border-radius: 48px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 10px #1A1C22,
+    0 40px 80px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+/* Status bar */
+.status-bar {
+  background: var(--cobalt-deep);
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 8px;
+}
+
+.sb-time {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+.sb-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sb-icon {
+  width: 16px; height: 10px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+}
+
+.sb-icon.signal {
+  width: 12px; height: 12px;
+  background: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.7);
+}
+
+/* ── APP HEADER ── */
+.app-header {
+  background: var(--cobalt-deep);
+  padding: 10px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-logotype {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.app-marnie {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 18px;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.app-dot { color: var(--kitchen); font-size: 22px; line-height: 1; }
+
+.app-io {
+  font-family: var(--syne);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--kitchen);
+  letter-spacing: -0.01em;
+}
+
+.app-date {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--cobalt-pale);
+  opacity: 0.65;
+  text-transform: uppercase;
+}
+
+/* ── SCROLL CONTENT ── */
+.scroll-content {
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ════════════════════════════════════════
+   PIPER TILE — primary interaction surface
+   ════════════════════════════════════════ */
+.piper-tile {
+  background: var(--surface);
+  margin: 12px 16px 0;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(43,82,168,0.08);
+}
+
+/* ── Tile header — portrait + identity ── */
+.piper-header {
+  background: var(--cobalt);
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.piper-portrait-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.piper-portrait {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--kitchen);
+  display: block;
+  background: var(--cobalt-deep); /* fallback while loading */
+}
+
+/* Live indicator on portrait */
+.piper-live-dot {
+  position: absolute;
+  bottom: 1px; right: 1px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--kitchen);
+  border: 2px solid var(--cobalt);
+  animation: pip-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pip-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.piper-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.piper-name {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 16px;
+  color: white;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.piper-role {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--cobalt-pale);
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.piper-status-pill {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--kitchen);
+  background: rgba(233,188,40,0.15);
+  border: 1px solid var(--kitchen-rule);
+  border-radius: 20px;
+  padding: 3px 9px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Input section ── */
+.piper-input-section {
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-l);
+}
+
+/* Voice button — PRIMARY TAP TARGET */
+.voice-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  background: var(--kitchen);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  padding: 0 20px;
+}
+
+.voice-btn:active {
+  background: var(--kitchen-deep);
+  transform: scale(0.98);
+}
+
+.voice-icon {
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+/* Mic icon — pure CSS */
+.mic-body {
+  width: 10px; height: 13px;
+  border-radius: 5px;
+  background: var(--cobalt-deep);
+  position: relative;
+}
+
+.mic-stand {
+  width: 14px; height: 5px;
+  border: 2px solid var(--cobalt-deep);
+  border-top: none;
+  border-radius: 0 0 7px 7px;
+  margin-top: 1px;
+}
+
+.mic-base {
+  width: 2px; height: 3px;
+  background: var(--cobalt-deep);
+}
+
+.voice-label {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--cobalt-deep);
+  letter-spacing: -0.01em;
+}
+
+.voice-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--cobalt-deep);
+  opacity: 0.55;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* Text input — secondary */
+.text-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-input {
+  flex: 1;
+  min-height: 44px;
+  background: var(--ground);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.12s;
+  -webkit-appearance: none;
+}
+
+.text-input::placeholder {
+  color: var(--ink-d);
+  font-weight: 300;
+}
+
+.text-input:focus { border-color: var(--cobalt-mid); }
+
+.text-send-btn {
+  min-width: 44px; min-height: 44px;
+  background: var(--cobalt);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.text-send-btn:active { background: var(--cobalt-deep); }
+
+/* Arrow icon */
+.send-arrow {
+  width: 0; height: 0;
+  border-left: 7px solid white;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  margin-left: 2px;
+}
+
+/* ── Active tasks / gate summary ── */
+.piper-tasks {
+  padding: 12px 16px 14px;
+}
+
+.tasks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tasks-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+}
+
+.tasks-count {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--cobalt-mid);
+  opacity: 0.7;
+}
+
+/* Task row */
+.task-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-l);
+  cursor: pointer;
+}
+
+.task-row:last-child { border-bottom: none; }
+
+.task-row:active { background: var(--cobalt-ghost); margin: 0 -16px; padding: 5px 16px; }
+
+.task-signal {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.ts-flag  { background: #C49B18; }   /* muted kitchen — flag in light context */
+.ts-gate  { background: var(--cobalt); }
+.ts-active { background: #3D8C6F; }  /* clear green */
+
+.task-text {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.task-agent {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.tasks-expand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.tasks-expand-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--cobalt-mid);
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.tasks-expand-arrow {
+  font-size: 9px;
+  color: var(--cobalt-mid);
+  opacity: 0.65;
+  transition: transform 0.18s;
+}
+
+.tasks-expand-arrow.open { transform: rotate(180deg); }
+
+/* ════════════════════════════════════════
+   START A TASK BUTTON
+   Visually distinct — different mode signal
+   ════════════════════════════════════════ */
+.start-task-wrap {
+  margin: 10px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.start-task-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 52px;
+  background: var(--surface);
+  border: 1.5px solid var(--cobalt-rule);
+  border-radius: 14px;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.start-task-btn:active {
+  background: var(--cobalt-ghost);
+  border-color: var(--cobalt-mid);
+}
+
+.start-task-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.start-task-label {
+  font-family: var(--syne);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cobalt);
+  letter-spacing: -0.01em;
+}
+
+.start-task-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+}
+
+/* Chevron + block icon */
+.start-task-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.block-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--cobalt-ghost);
+  border: 1px solid var(--cobalt-rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Block icon — CSS grid of small squares */
+.block-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 7px);
+  gap: 3px;
+}
+
+.block-sq {
+  width: 7px; height: 7px;
+  border-radius: 2px;
+  background: var(--cobalt);
+  opacity: 0.5;
+}
+
+.block-sq.active {
+  background: var(--cobalt);
+  opacity: 1;
+}
+
+.start-task-chevron {
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--cobalt-mid);
+  opacity: 0.5;
+  transform: rotate(-90deg);
+}
+
+/* Mode label below the button */
+.start-task-mode-note {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0 4px;
+}
+
+/* ════════════════════════════════════════
+   HEALTH DASHBOARD — below Piper tile
+   (Existing C6 components, abbreviated)
+   ════════════════════════════════════════ */
+.section-spacer {
+  height: 12px;
+}
+
+.health-section-head {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+  padding: 0 16px;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stat-left {}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--ink-d);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stat-val {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--cobalt);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.stat-val .stat-unit {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--cobalt-mid);
+  margin-left: 2px;
+}
+
+.stat-sub {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--ink-m);
+  margin-top: 2px;
+}
+
+.stat-bar-wrap {
+  flex: 1;
+  max-width: 80px;
+}
+
+.stat-bar {
+  height: 4px;
+  background: var(--cobalt-ghost);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--cobalt-rule);
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--cobalt);
+}
+
+.stat-fill.kitchen { background: var(--kitchen); }
+
+/* Nudge banner */
+.nudge-banner {
+  margin: 8px 16px 0;
+  background: var(--kitchen);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.nudge-icon-wrap {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.nudge-dot-icon {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: white;
+}
+
+.nudge-body { flex: 1; }
+
+.nudge-agent {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--cobalt-deep);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.nudge-message {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cobalt-deep);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.nudge-dismiss {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--cobalt-deep);
+  opacity: 0.45;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+/* Safe area bottom */
+.safe-area-pad {
+  height: calc(env(safe-area-inset-bottom, 20px) + 20px);
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+<div class="phone-frame">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="sb-time">9:41</div>
+    <div class="sb-icons">
+      <div class="sb-icon signal"></div>
+      <div class="sb-icon"></div>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="app-logotype">
+      <span class="app-marnie">Marnie</span><span class="app-dot">.</span><span class="app-io">IO</span>
+    </div>
+    <div class="app-date">Sun 12 Apr · W15</div>
+  </div>
+
+  <!-- Scroll content -->
+  <div class="scroll-content">
+
+    <!-- ══ PIPER TILE ══ -->
+    <div class="piper-tile">
+
+      <!-- Portrait + identity header -->
+      <div class="piper-header">
+        <div class="piper-portrait-wrap">
+          <img
+            class="piper-portrait"
+            src="https://raw.githubusercontent.com/marnie-iai/agent-portraits/main/portraits/Piper_headshot.png"
+            alt="Piper"
+          >
+          <div class="piper-live-dot"></div>
+        </div>
+        <div class="piper-identity">
+          <div class="piper-name">Piper</div>
+          <div class="piper-role">Head of Admin · IO Alpha</div>
+        </div>
+        <div class="piper-status-pill">Ready</div>
+      </div>
+
+      <!-- Input section -->
+      <div class="piper-input-section">
+
+        <!-- Voice button — PRIMARY -->
+        <button class="voice-btn" aria-label="Speak to Piper">
+          <div class="voice-icon">
+            <div class="mic-body"></div>
+            <div class="mic-stand"></div>
+            <div class="mic-base"></div>
+          </div>
+          <span class="voice-label">Speak to Piper</span>
+          <span class="voice-hint">Tap to talk</span>
+        </button>
+
+        <!-- Text input — secondary -->
+        <div class="text-input-row">
+          <input
+            type="text"
+            class="text-input"
+            placeholder="Type a message or task…"
+            autocomplete="off"
+            autocorrect="on"
+            spellcheck="true"
+          >
+          <button class="text-send-btn" aria-label="Send">
+            <div class="send-arrow"></div>
+          </button>
+        </div>
+
+      </div><!-- /input-section -->
+
+      <!-- Active tasks + gate summary -->
+      <div class="piper-tasks">
+        <div class="tasks-head">
+          <span class="tasks-label">Active now</span>
+          <span class="tasks-count">14 active · 2 gates</span>
+        </div>
+
+        <div class="task-row">
+          <div class="task-signal ts-gate"></div>
+          <div class="task-text">Clear Ground Page 2 — live by Monday 13 Apr</div>
+          <div class="task-agent">Wren</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-signal ts-flag"></div>
+          <div class="task-text">Haiku 3 deprecation — migrate by 19 Apr</div>
+          <div class="task-agent">Dev</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-signal ts-gate"></div>
+          <div class="task-text">Cowork RBAC — Marnie decision required</div>
+          <div class="task-agent">Marnie</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-signal ts-active"></div>
+          <div class="task-text">Org charts — Canva build in progress</div>
+          <div class="task-agent">Lumen</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-signal ts-active"></div>
+          <div class="task-text">Email banner upload — Substack</div>
+          <div class="task-agent">Wren</div>
+        </div>
+
+        <div class="tasks-expand" onclick="this.querySelector('.tasks-expand-arrow').classList.toggle('open')">
+          <span class="tasks-expand-label">Show all 14 tasks</span>
+          <span class="tasks-expand-arrow">▼</span>
+        </div>
+
+      </div><!-- /tasks -->
+
+    </div><!-- /piper-tile -->
+
+    <!-- ══ START A TASK BUTTON ══ -->
+    <div class="start-task-wrap">
+      <button class="start-task-btn" aria-label="Start a focused work session">
+        <div class="start-task-left">
+          <div class="start-task-label">Start a Task</div>
+          <div class="start-task-hint">Focused work session</div>
+        </div>
+        <div class="start-task-icon">
+          <div class="block-icon">
+            <div class="block-grid">
+              <div class="block-sq active"></div>
+              <div class="block-sq"></div>
+              <div class="block-sq"></div>
+              <div class="block-sq active"></div>
+            </div>
+          </div>
+          <div class="start-task-chevron"></div>
+        </div>
+      </button>
+      <div class="start-task-mode-note">Commits a focused block · routes via Piper</div>
+    </div>
+
+    <!-- ══ HEALTH DASHBOARD — existing C6 below ══ -->
+    <div class="health-section-head">Today</div>
+
+    <!-- Nudge banner -->
+    <div class="nudge-banner">
+      <div class="nudge-icon-wrap"><div class="nudge-dot-icon"></div></div>
+      <div class="nudge-body">
+        <div class="nudge-agent">Vida</div>
+        <div class="nudge-message">Protein at 62g — 68g to target. Add a snack before 6pm.</div>
+      </div>
+      <div class="nudge-dismiss">Dismiss</div>
+    </div>
+
+    <div class="health-section-head" style="margin-top:16px">Health</div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-left">
+          <div class="stat-label">Protein today</div>
+          <div class="stat-val">62<span class="stat-unit">g</span></div>
+          <div class="stat-sub">Target 130g · 68g to go</div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar"><div class="stat-fill kitchen" style="width:48%"></div></div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-left">
+          <div class="stat-label">Hydration</div>
+          <div class="stat-val">1.8<span class="stat-unit">L</span></div>
+          <div class="stat-sub">Target 3L · on track</div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar"><div class="stat-fill" style="width:60%"></div></div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-left">
+          <div class="stat-label">Recovery score</div>
+          <div class="stat-val">74</div>
+          <div class="stat-sub">Sleep 7.2hr · HRV 38</div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar"><div class="stat-fill" style="width:74%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="safe-area-pad"></div>
+
+  </div><!-- /scroll-content -->
+</div><!-- /phone-frame -->
+</div><!-- /phone-wrap -->
+
+</body>
+</html>
