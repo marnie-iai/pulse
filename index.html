@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pulse — IP Layer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:           #0D1B2A;
+    --navy-mid:       #122030;
+    --navy-surface:   #1A2B3C;
+    --navy-raised:    #1F3347;
+    --cobalt:         #4A90D9;
+    --cobalt-dim:     rgba(74,144,217,0.12);
+    --cobalt-glow:    rgba(74,144,217,0.08);
+    --cobalt-border:  rgba(74,144,217,0.25);
+    --text-primary:   #E8ECF0;
+    --text-secondary: #7A8FA0;
+    --text-tertiary:  #4A5F70;
+    --border-subtle:  rgba(255,255,255,0.06);
+    --tod-top:        #0D1B2A;
+    --tod-bottom:     #122030;
+    --tod-accent:     #4A90D9;
+    --glow-color:     rgba(74,144,217,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Syne', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  .interface-stage {
+    display: flex;
+    justify-content: center;
+    padding: 48px 24px;
+    background: var(--navy-mid);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+  }
+
+  .interface-shell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 320px;
+  }
+
+  /* ── TILE ── */
+  .pulse-tile {
+    width: 320px;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+    background: var(--navy-surface);
+    border: 1px solid var(--border-subtle);
+    border-bottom: none;
+    box-shadow: 0 0 0 1px var(--cobalt-border), 0 24px 64px rgba(0,0,0,0.5);
+  }
+
+  /* Zone 1: TOD Band */
+  .tile-tod-band {
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--tod-accent), transparent);
+  }
+
+  /* Zone 2: Context Strip */
+  .tile-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .tile-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+  }
+  .tile-tod-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tod-accent);
+    padding: 3px 8px;
+    border: 1px solid var(--tod-accent);
+    border-radius: 3px;
+    opacity: 0.75;
+  }
+
+  /* Zone 3: Portrait Zone */
+  .tile-portrait-zone {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--tod-top) 0%, var(--tod-bottom) 100%);
+    transition: background 1.2s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .tile-portrait-zone::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--navy-surface));
+    pointer-events: none;
+    z-index: 2;
+  }
+  .tile-portrait-zone::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+    pointer-events: none; z-index: 1;
+    transition: background 1.2s ease;
+  }
+  .tile-portrait-bg {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://raw.githubusercontent.com/marnie-iai/agent-portraits/main/portraits/Piper_headshot.png');
+    background-size: 85%;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    z-index: 1;
+  }
+
+  /* Zone 4: Identity Block */
+  .tile-identity {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .tile-agent-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .tile-agent-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-top: 5px;
+  }
+  .tile-accent-rule {
+    width: 28px;
+    height: 2px;
+    background: var(--cobalt);
+    border-radius: 1px;
+    margin-top: 10px;
+  }
+
+  /* Zone 5: State Zone */
+  .tile-state {
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .state-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .state-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+  .state-dot.active {
+    background: var(--cobalt);
+    position: relative;
+  }
+  .state-dot.active::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: var(--cobalt);
+    opacity: 0.2;
+    animation: pulse-ring 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { transform: scale(1); opacity: 0.2; }
+    50%       { transform: scale(2.4); opacity: 0; }
+  }
+  .state-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+  .state-value {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--cobalt);
+    letter-spacing: 0.03em;
+    opacity: 0.85;
+  }
+
+  /* Zone 6: Input Zone */
+  .tile-input {
+    padding: 14px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .input-btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--navy-raised);
+    color: var(--text-secondary);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+  }
+  .input-btn:hover {
+    border-color: var(--cobalt-border);
+    color: var(--cobalt);
+    background: var(--navy-surface);
+  }
+  .input-btn.primary {
+    background: var(--cobalt);
+    border-color: var(--cobalt);
+    color: var(--navy);
+    font-weight: 700;
+    flex: 1.6;
+  }
+  .input-btn.primary:hover {
+    background: #5A9FE8;
+    border-color: #5A9FE8;
+  }
+
+  /* ── NAMEPLATE ── */
+  .pulse-nameplate {
+    width: 320px;
+    background: var(--navy-raised);
+    border: 1px solid var(--border-subtle);
+    border-top: 1px solid var(--cobalt-border);
+    border-radius: 0 0 16px 16px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nameplate-pulse {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cobalt);
+    opacity: 0.7;
+  }
+  .nameplate-ip {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .nameplate-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .nameplate-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--cobalt);
+    opacity: 0.6;
+  }
+  .nameplate-status-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+</style>
+</head>
+<body>
+
+<div class="interface-stage">
+  <div class="interface-shell">
+
+    <div class="pulse-tile">
+      <div class="tile-tod-band" id="tod-band"></div>
+
+      <div class="tile-context">
+        <span class="tile-time" id="live-time">--:--</span>
+        <span class="tile-tod-label" id="tod-label">--</span>
+      </div>
+
+      <div class="tile-portrait-zone" id="portrait-zone">
+        <div class="tile-portrait-bg"></div>
+      </div>
+
+      <div class="tile-identity">
+        <div class="tile-agent-name">Piper</div>
+        <div class="tile-agent-role">Head of Admin &nbsp;&middot;&nbsp; IO Front Door</div>
+        <div class="tile-accent-rule"></div>
+      </div>
+
+      <div class="tile-state">
+        <div class="state-row">
+          <div class="state-dot active"></div>
+          <span class="state-text">Sprint board</span>
+          <span class="state-value">4 tasks active</span>
+        </div>
+        <div class="state-row">
+          <div class="state-dot"></div>
+          <span class="state-text">Next block</span>
+          <span class="state-value">Clear Ground &middot; 14:00</span>
+        </div>
+        <div class="state-row">
+          <div class="state-dot"></div>
+          <span class="state-text">Decision queue</span>
+          <span class="state-value">2 pending</span>
+        </div>
+      </div>
+
+      <div class="tile-input">
+        <div class="input-row">
+          <button class="input-btn primary">&#x25C9; &nbsp;Open</button>
+          <button class="input-btn">&#x25CE; &nbsp;Voice</button>
+        </div>
+        <div class="input-row">
+          <button class="input-btn">Schedule</button>
+          <button class="input-btn">Sprint</button>
+          <button class="input-btn">DI</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pulse-nameplate">
+      <div>
+        <div class="nameplate-pulse">The Pulse</div>
+        <div class="nameplate-ip">Integrated Protocol</div>
+      </div>
+      <div class="nameplate-status">
+        <div class="nameplate-status-dot"></div>
+        <div class="nameplate-status-text">Active</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const TOD_PERIODS = {
+    morning:   { label: 'MORNING',   top: '#1F2E38', bottom: '#2A3D48', accent: '#C4956A', glow: 'rgba(74,144,217,0.08)', start: 5  },
+    midday:    { label: 'MIDDAY',    top: '#0D2030', bottom: '#152838', accent: '#6AAEC4', glow: 'rgba(74,144,217,0.05)', start: 12 },
+    afternoon: { label: 'AFTERNOON', top: '#1C2232', bottom: '#252040', accent: '#9A7BC4', glow: 'rgba(74,144,217,0.08)', start: 15 },
+    night:     { label: 'NIGHT',     top: '#0D1B2A', bottom: '#122030', accent: '#4A90D9', glow: 'rgba(74,144,217,0.12)', start: 21 },
+  };
+
+  function getPeriod(h) {
+    if (h >= 5  && h < 12) return 'morning';
+    if (h >= 12 && h < 15) return 'midday';
+    if (h >= 15 && h < 21) return 'afternoon';
+    return 'night';
+  }
+
+  function updateTile() {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const period = getPeriod(h);
+    const tod = TOD_PERIODS[period];
+
+    document.getElementById('live-time').textContent = `${h}:${m}`;
+    const label = document.getElementById('tod-label');
+    label.textContent = tod.label;
+    label.style.color = tod.accent;
+    label.style.borderColor = tod.accent;
+
+    document.getElementById('tod-band').style.background =
+      `linear-gradient(90deg, ${tod.accent}, transparent)`;
+
+    document.getElementById('portrait-zone').style.background =
+      `linear-gradient(160deg, ${tod.top} 0%, ${tod.bottom} 100%)`;
+
+    document.documentElement.style.setProperty('--glow-color', tod.glow);
+  }
+
+  updateTile();
+  setInterval(updateTile, 30000);
+</script>
+
+</body>
+</html>
